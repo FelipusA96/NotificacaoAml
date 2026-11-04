@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Notificação & Card de Metas | Call Center</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- html2canvas CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        darkbg: '#060A12',
+                        cardbg: '#0E172A',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #060A12;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 90% 20%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 80%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #E2E8F0;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styles specifically optimized for html2canvas rendering */
+        .export-card {
+            background: linear-gradient(135deg, #0B132B 0%, #0F172A 50%, #051923 100%);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .metric-card-success {
+            background: rgba(16, 185, 129, 0.07);
+            border: 1.5px solid rgba(16, 185, 129, 0.35);
+        }
+        .metric-card-warning {
+            background: rgba(245, 158, 11, 0.07);
+            border: 1.5px solid rgba(245, 158, 11, 0.35);
+        }
+        .metric-card-danger {
+            background: rgba(239, 68, 68, 0.07);
+            border: 1.5px solid rgba(239, 68, 68, 0.35);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-emerald-500/50 flex items-center space-x-3">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+        <span id="toast-message" class="text-sm font-medium">Ação realizada com sucesso!</span>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-7xl mx-auto w-full space-y-6">
+
+        <!-- HEADER APP BAR -->
+        <header class="glass-panel p-4 sm:p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border-b-2 border-b-emerald-500/30">
+            <div class="flex items-center space-x-3 text-center md:text-left">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-amber-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black font-heading text-white tracking-wide">
+                        Gerador de Card de Indicadores
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400">Edite os valores e gere imagens em PNG de alta qualidade para WhatsApp e apresentações.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <button onclick="resetDefaultValues()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Restaurar Padrão
+                </button>
+                <button onclick="triggerCelebration()" class="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs sm:text-sm font-semibold border border-amber-500/40 transition flex items-center gap-2">
+                    <i class="fa-solid fa-party-horn"></i> Testar Confetes
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT: FORM EDIT (LEFT) + LIVE PREVIEW CARD (RIGHT) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- LEFT COLUMN: EDIT FORM (5 cols) -->
+            <section class="lg:col-span-5 glass-panel p-5 sm:p-6 rounded-2xl space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                    <h2 class="text-lg font-bold font-heading text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Formatos e Valores
+                    </h2>
+                    <span class="text-xs text-slate-400 font-medium bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">Edição Dinâmica</span>
+                </div>
+
+                <!-- General Info Inputs -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Título da Notificação</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-bullhorn text-xs"></i></span>
+                            <input type="text" id="input-title" value="BENEFICIÁRIOS - BATEMOS A META" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome da Supervisão</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user-tie text-xs"></i></span>
+                            <input type="text" id="input-supervisor" value="KELVIN" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm uppercase focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- METRICS INPUT LIST -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide flex items-center gap-2 pt-2 border-t border-slate-700/60">
+                        <i class="fa-solid fa-list-check text-amber-400"></i> Métricas do Atendimento (7)
+                    </h3>
+
+                    <div id="metrics-form-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                        <!-- Dynamic Metric Field Rows Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="space-y-3 pt-4 border-t border-slate-700/60">
+                    <button onclick="downloadPNG()" id="btn-download" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-file-image text-lg"></i>
+                        <span>Exportar / Baixar Imagem (PNG)</span>
+                    </button>
+
+                    <button onclick="copyWhatsAppFormat()" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Copiar Texto Formato WhatsApp</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: LIVE PREVIEW & EXPORT CANVAS CARD (7 cols) -->
+            <section class="lg:col-span-7 space-y-4">
+
+                <!-- Control toolbar over the preview -->
+                <div class="flex items-center justify-between px-2 text-xs text-slate-400">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <strong>Visualização de Saída (Render em Alta Resolução)</strong>
+                    </span>
+                    <span>HD Export (PNG Scale x2)</span>
+                </div>
+
+                <!-- THE CARD TO BE EXPORTED TO IMAGE (Target for html2canvas) -->
+                <div id="capture-card" class="export-card p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden space-y-6">
+                    
+                    <!-- Decorative ambient lights in background -->
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- HEADER BANNER INSIDE CARD -->
+                    <div class="text-center space-y-3 relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> Painel de Desempenho Operacional
+                        </div>
+
+                        <h2 id="card-title" class="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white tracking-tight uppercase">
+                            BENEFICIÁRIOS - BATEMOS A META
+                        </h2>
+
+                        <div class="flex justify-center">
+                            <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 via-amber-500/30 to-amber-500/20 border border-amber-500/50 px-5 py-1.5 rounded-xl text-amber-200 font-bold text-xs sm:text-sm tracking-wider uppercase">
+                                <i class="fa-solid fa-user-shield text-amber-400"></i>
+                                <span>SUPERVISÃO: <span id="card-supervisor" class="text-white font-extrabold">KELVIN</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- METRICS GRID INSIDE CARD -->
+                    <div id="card-metrics-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                        <!-- Dynamic Metric Cards Rendered via JS -->
+                    </div>
+
+                    <!-- FOOTER INSIDE CARD -->
+                    <div class="pt-2 relative z-10">
+                        <div class="bg-gradient-to-r from-emerald-950/60 via-slate-900/80 to-emerald-950/60 p-4 rounded-2xl border border-emerald-500/30 text-center flex items-center justify-center gap-3">
+                            <span class="text-2xl animate-bounce">🎉</span>
+                            <h3 class="text-base sm:text-lg font-black font-heading text-white tracking-wide uppercase">
+                                PARABÉNS A TODA A EQUIPE! 🚀
+                            </h3>
+                            <span class="text-2xl animate-bounce">🏆</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- FOOTER APP CREDITS -->
+        <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+            Painel Gerador de Indicadores Operacionais • Compatível com GitHub Pages & Exportação PNG
+        </footer>
+
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        // Initial Default Metrics Data
+        const defaultMetrics = [
+            { id: 1, name: 'Aderência', meta: '90', atual: '89.64', unit: '%', icon: 'fa-calendar-check', lowerIsBetter: false },
+            { id: 2, name: 'NS - Nível de Serviço', meta: '90', atual: '94.91', unit: '%', icon: 'fa-headset', lowerIsBetter: false },
+            { id: 3, name: 'Qualidade Soft', meta: '90.00', atual: '92.08', unit: '%', icon: 'fa-award', lowerIsBetter: false },
+            { id: 4, name: 'Qualidade AQM', meta: '95.00', atual: '83.71', unit: '', icon: 'fa-clipboard-check', lowerIsBetter: false },
+            { id: 5, name: 'TMA', meta: '350', atual: '418', unit: 's', icon: 'fa-stopwatch', lowerIsBetter: true },
+            { id: 6, name: 'Satisfação', meta: '9.00', atual: '9.38', unit: '', icon: 'fa-face-smile-beam', lowerIsBetter: false },
+            { id: 7, name: 'NPS', meta: '60', atual: '65', unit: '', icon: 'fa-chart-line', lowerIsBetter: false }
+        ];
+
+        let metricsState = JSON.parse(JSON.stringify(defaultMetrics));
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFormFields();
+            updatePreview();
+            setTimeout(triggerCelebration, 600);
+        });
+
+        // Render input fields on the left column form
+        function renderFormFields() {
+            const container = document.getElementById('metrics-form-container');
+            container.innerHTML = '';
+
+            metricsState.forEach((m, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2';
+                itemEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid ${m.icon} text-emerald-400"></i> ${m.name}
+                        </span>
+                        <label class="inline-flex items-center text-[11px] text-slate-400 cursor-pointer">
+                            <input type="checkbox" ${m.lowerIsBetter ? 'checked' : ''} onchange="updateMetricRule(${index}, this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 mr-1.5">
+                            Menor é melhor
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Meta (${m.unit || 'Valor'})</label>
+                            <input type="text" value="${m.meta}" oninput="updateMetricValue(${index}, 'meta', this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Atual</label>
+                            <input type="text" value="${m.atual}" oninput="updateMetricValue(${index}, 'atual', this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+        }
+
+        // Update single metric value in state
+        function updateMetricValue(index, field, val) {
+            metricsState[index][field] = val;
+            updatePreview();
+        }
+
+        // Update rule (lower is better, e.g. TMA)
+        function updateMetricRule(index, checked) {
+            metricsState[index].lowerIsBetter = checked;
+            updatePreview();
+        }
+
+        // Reset to default values
+        function resetDefaultValues() {
+            document.getElementById('input-title').value = "BENEFICIÁRIOS - BATEMOS A META";
+            document.getElementById('input-supervisor').value = "KELVIN";
+            metricsState = JSON.parse(JSON.stringify(defaultMetrics));
+            renderFormFields();
+            updatePreview();
+            showToast("Valores padronizados restaurados!", "fa-rotate-left");
+        }
+
+        // Main preview recalculation & DOM update
+        function updatePreview() {
+            // Header values
+            const titleVal = document.getElementById('input-title').value || "BENEFICIÁRIOS - BATEMOS A META";
+            const supervisorVal = document.getElementById('input-supervisor').value || "SUPERVISOR";
+
+            document.getElementById('card-title').textContent = titleVal;
+            document.getElementById('card-supervisor').textContent = supervisorVal.toUpperCase();
+
+            // Render Metrics Grid
+            const grid = document.getElementById('card-metrics-grid');
+            grid.innerHTML = '';
+
+            metricsState.forEach((m, idx) => {
+                const metaNum = parseFloat(m.meta.replace(',', '.')) || 0;
+                const atualNum = parseFloat(m.atual.replace(',', '.')) || 0;
+                const isNPS = m.name.toUpperCase().includes('NPS');
+
+                let isSuccess = false;
+                let isWarning = false;
+                let diffText = '';
+                let progressPercent = 0;
+
+                if (m.lowerIsBetter) {
+                    // Lower is better (e.g., TMA)
+                    isSuccess = atualNum <= metaNum;
+                    isWarning = atualNum > metaNum && atualNum <= metaNum * 1.15;
+                    const diff = (atualNum - metaNum).toFixed(2).replace('.', ',');
+                    diffText = atualNum > metaNum ? `Excesso: +${diff}${m.unit}` : `Economia: ${diff}${m.unit}`;
+                    progressPercent = Math.min(100, Math.max(10, (metaNum / (atualNum || 1)) * 100));
+                } else {
+                    // Higher is better
+                    isSuccess = atualNum >= metaNum;
+                    isWarning = !isSuccess && atualNum >= metaNum * 0.95;
+                    const diff = (atualNum - metaNum).toFixed(2).replace('.', ',');
+                    diffText = atualNum >= metaNum ? `Diferença: +${diff}${m.unit}` : `Diferença: ${diff}${m.unit}`;
+                    progressPercent = Math.min(100, Math.max(10, (atualNum / (metaNum || 1)) * 100));
+                }
+
+                let cardStatusClass = 'metric-card-danger';
+                let statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">Abaixo</span>';
+                let valueColorClass = 'text-red-400';
+                let barColorClass = 'from-red-600 to-red-400';
+
+                if (isSuccess) {
+                    cardStatusClass = 'metric-card-success';
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Superada</span>';
+                    valueColorClass = 'text-emerald-400';
+                    barColorClass = 'from-emerald-600 to-emerald-400';
+                } else if (isWarning) {
+                    cardStatusClass = 'metric-card-warning';
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">Quase lá</span>';
+                    valueColorClass = 'text-amber-400';
+                    barColorClass = 'from-amber-600 to-amber-400';
+                }
+
+                // Wide layout for NPS or 7th element if odd
+                const isWide = isNPS || (idx === metricsState.length - 1 && metricsState.length % 2 !== 0);
+                const colSpanClass = isWide ? 'sm:col-span-2' : '';
+
+                const cardEl = document.createElement('div');
+                cardEl.className = `${cardStatusClass} ${colSpanClass} p-4 rounded-2xl relative overflow-hidden transition-all`;
+                cardEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center text-slate-200 text-sm">
+                                <i class="fa-solid ${m.icon}"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-100 text-sm sm:text-base">${m.name}</h4>
+                        </div>
+                        ${statusBadge}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 items-baseline mt-3">
+                        <div>
+                            <span class="text-[11px] uppercase font-semibold text-slate-400 block">Meta</span>
+                            <span class="text-sm font-semibold text-slate-300">${m.meta}${m.unit}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[11px] uppercase font-semibold text-slate-400 block">Atual</span>
+                            <span class="text-2xl sm:text-3xl font-black ${valueColorClass} font-heading">${m.atual}${m.unit}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-2.5 space-y-1">
+                        <div class="w-full bg-slate-900/90 h-2 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
+                            <div class="bg-gradient-to-r ${barColorClass} h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 text-right font-medium">${diffText}</p>
+                    </div>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        // Export capture-card to PNG using html2canvas
+        function downloadPNG() {
+            const btn = document.getElementById('btn-download');
+            const originalBtnText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Gerando Imagem PNG...</span>`;
+            showToast("Renderizando imagem em alta resolução...", "fa-gear animate-spin");
+
+            const captureElement = document.getElementById('capture-card');
+
+            // Trigger celebration on download
+            triggerCelebration();
+
+            html2canvas(captureElement, {
+                scale: 2, // High resolution crispness
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#060A12',
+                logging: false,
+                onclone: (clonedDoc) => {
+                    // Ensures styles are locked in clone
+                    const clonedCard = clonedDoc.getElementById('capture-card');
+                    if (clonedCard) {
+                        clonedCard.style.transform = 'none';
+                    }
+                }
+            }).then(canvas => {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                
+                const supervisor = document.getElementById('input-supervisor').value || 'kelvin';
+                const fileName = `metas-${supervisor.toLowerCase().trim().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.png`;
+
+                link.download = fileName;
+                link.href = image;
+                link.click();
+
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                showToast("Imagem baixada com sucesso!", "fa-circle-check");
+            }).catch(err => {
+                console.error("Erro ao gerar imagem:", err);
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                showToast("Erro ao gerar imagem. Tente novamente.", "fa-triangle-exclamation");
+            });
+        }
+
+        // Copy plain text notification to clipboard for WhatsApp/Teams
+        function copyWhatsAppFormat() {
+            const title = document.getElementById('input-title').value || "BENEFICIÁRIOS - BATEMOS A META";
+            const supervisor = document.getElementById('input-supervisor').value || "KELVIN";
+
+            let formattedText = `${title.toUpperCase()} - ${supervisor.toUpperCase()}\n\n`;
+
+            metricsState.forEach(m => {
+                formattedText += `${m.name.toUpperCase()} meta ${m.meta}${m.unit}\n`;
+                formattedText += `- Atualmente ${m.atual}${m.unit}\n\n`;
+            });
+
+            formattedText += `🎉 PARABÉNS A TODA A EQUIPE! 🚀`;
+
+            // Clipboard fallback for iframe context
+            const textarea = document.createElement('textarea');
+            textarea.value = formattedText;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast("Texto formatado copiado!", "fa-clipboard-check");
+            } catch (err) {
+                showToast("Erro ao copiar texto.", "fa-triangle-exclamation");
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Confetti celebration sound & particles
+        function triggerCelebration() {
+            playAudioChime();
+
+            const count = 180;
+            const defaults = { origin: { y: 0.7 } };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55, colors: ['#10B981', '#F59E0B', '#FFFFFF'] });
+            fire(0.2, { spread: 60, colors: ['#34D399', '#FBBF24'] });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92 });
+        }
+
+        // Web Audio Synthesizer for Chime Sound (No external MP3 required)
+        function playAudioChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+
+                const freqs = [523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((f, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.08);
+
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(ctx.currentTime + i * 0.08);
+                    osc.stop(ctx.currentTime + i * 0.08 + 0.4);
+                });
+            } catch (e) {
+                // Audio context suppressed by browser policy if un-interacted
+            }
+        }
+
+        // Toast feedback handler
+        function showToast(msg, iconClass = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = msg;
+            toastIcon.className = `fa-solid ${iconClass} text-emerald-400 text-xl`;
+
+            toast.classList.remove('translate-y-[-120%]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-120%]', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
