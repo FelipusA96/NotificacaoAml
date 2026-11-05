@@ -123,7 +123,7 @@
                         Gerador de Notificação de Metas
                     </h1>
                     <p class="text-xs sm:text-sm text-slate-400">
-                        Crie e exporte cartões visuais para WhatsApp, Teams e Apresentações
+                        Crie, copie e exporte cartões visuais para WhatsApp, Teams e Apresentações
                     </p>
                 </div>
             </div>
@@ -233,15 +233,23 @@
                     </div>
                 </div>
 
-                <!-- ACTION BUTTONS -->
-                <div class="space-y-3 pt-4 border-t border-slate-800">
-                    <button onclick="downloadPNG()" id="btn-download" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition flex items-center justify-center space-x-2 active:scale-98">
+                <!-- ACTION BUTTONS PANEL (3 BUTTONS) -->
+                <div class="space-y-2.5 pt-4 border-t border-slate-800">
+                    <!-- Button 1: Download PNG -->
+                    <button onclick="downloadPNG()" id="btn-download" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition flex items-center justify-center space-x-2 active:scale-98">
                         <i class="fa-solid fa-file-image text-lg"></i>
                         <span>Exportar / Baixar Imagem (PNG)</span>
                     </button>
 
-                    <button onclick="copyWhatsAppFormat()" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-copy"></i>
+                    <!-- Button 2: Copy Image directly to Clipboard (NEW!) -->
+                    <button onclick="copyImageToClipboard()" id="btn-copy-image" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-xl shadow-cyan-600/20 transition flex items-center justify-center space-x-2 active:scale-98">
+                        <i class="fa-solid fa-copy text-lg"></i>
+                        <span>Copiar Imagem (Enviar Direto no Chat)</span>
+                    </button>
+
+                    <!-- Button 3: Copy Formatted Text -->
+                    <button onclick="copyWhatsAppFormat()" id="btn-copy-text" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-align-left"></i>
                         <span>Copiar Texto Formatado (WhatsApp/Teams)</span>
                     </button>
                 </div>
@@ -254,7 +262,7 @@
                 <div class="flex items-center justify-between px-2 text-xs text-slate-400">
                     <span class="flex items-center space-x-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                        <strong>Cartão de Visualização (Pronto para Exportar)</strong>
+                        <strong>Cartão de Visualização (Pronto para Copiar / Baixar)</strong>
                     </span>
                     <span>HD Export (Scale x2)</span>
                 </div>
@@ -615,7 +623,7 @@
             });
         }
 
-        // Export PNG handling
+        // Export PNG handling (Download to File)
         function downloadPNG() {
             const btn = document.getElementById('btn-download');
             const cardEl = document.getElementById('card-preview');
@@ -629,7 +637,6 @@
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Gerando Imagem HD...</span>`;
 
-            // Trigger festive sound and particles
             triggerCelebration();
 
             html2canvas(cardEl, {
@@ -655,6 +662,68 @@
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 showToast("Ocorreu um erro ao gerar a imagem.", "fa-triangle-exclamation");
+            });
+        }
+
+        // Copy Image directly to Clipboard (No file download needed)
+        function copyImageToClipboard() {
+            const btn = document.getElementById('btn-copy-image');
+            const cardEl = document.getElementById('card-preview');
+
+            if (typeof html2canvas === 'undefined') {
+                showToast("Erro: Biblioteca de captura não carregou.", "fa-triangle-exclamation");
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Copiando Imagem HD...</span>`;
+
+            triggerCelebration();
+
+            html2canvas(cardEl, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#060913',
+                logging: false
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        showToast("Erro ao processar imagem.", "fa-triangle-exclamation");
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        return;
+                    }
+
+                    // Check Clipboard API support for image write
+                    if (navigator.clipboard && window.ClipboardItem) {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        navigator.clipboard.write([item]).then(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = `<i class="fa-solid fa-check text-lg"></i> <span>Imagem Copiada! (Ctrl+V)</span>`;
+                            showToast("Imagem copiada! Cole com Ctrl+V no WhatsApp/Teams", "fa-circle-check");
+                            
+                            setTimeout(() => {
+                                btn.innerHTML = originalText;
+                            }, 3500);
+                        }).catch(err => {
+                            console.error("Erro na API Clipboard:", err);
+                            showToast("Seu navegador requer permissão ou download direto.", "fa-triangle-exclamation");
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        });
+                    } else {
+                        showToast("Cópia de imagem não suportada neste navegador. Use a opção Baixar PNG.", "fa-triangle-exclamation");
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                }, 'image/png');
+            }).catch(err => {
+                console.error("Erro html2canvas:", err);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showToast("Erro ao converter o cartão em imagem.", "fa-triangle-exclamation");
             });
         }
 
