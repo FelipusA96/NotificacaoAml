@@ -3,73 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Notificação & Card de Metas | Call Center</title>
-    <!-- Tailwind CSS -->
+    <title>Gerador de Notificação de Metas - Call Center</title>
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome 6 Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Outfit & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- html2canvas CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Outfit', 'sans-serif'],
-                    },
                     colors: {
-                        darkbg: '#060A12',
-                        cardbg: '#0E172A',
+                        brandDark: '#060913',
+                        brandCard: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        heading: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- html2canvas for high-res image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
     <style>
         body {
-            background-color: #060A12;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
-                radial-gradient(at 90% 20%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
-                radial-gradient(at 50% 80%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: #E2E8F0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #060913;
+            color: #f1f5f9;
         }
 
-        /* Glassmorphism Styles */
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Glassmorphism effects */
         .glass-panel {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Styles specifically optimized for html2canvas rendering */
         .export-card {
-            background: linear-gradient(135deg, #0B132B 0%, #0F172A 50%, #051923 100%);
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(145deg, #0d1527 0%, #060c1a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
 
+        /* Metric card status borders */
         .metric-card-success {
-            background: rgba(16, 185, 129, 0.07);
-            border: 1.5px solid rgba(16, 185, 129, 0.35);
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
         }
+
         .metric-card-warning {
-            background: rgba(245, 158, 11, 0.07);
-            border: 1.5px solid rgba(245, 158, 11, 0.35);
+            background: linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.12);
         }
+
         .metric-card-danger {
-            background: rgba(239, 68, 68, 0.07);
-            border: 1.5px solid rgba(239, 68, 68, 0.35);
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.35) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.12);
         }
 
         /* Custom Scrollbar */
@@ -81,138 +91,196 @@
             background: rgba(15, 23, 42, 0.6);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 9999px;
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(16, 185, 129, 0.5);
+            background: rgba(71, 85, 105, 1);
         }
     </style>
 </head>
-<body class="min-h-screen font-sans p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
+<body class="min-h-screen pb-12 antialiased">
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-emerald-500/50 flex items-center space-x-3">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
-        <span id="toast-message" class="text-sm font-medium">Ação realizada com sucesso!</span>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 transition-all duration-300 transform -translate-y-12 opacity-0 pointer-events-none">
+        <div id="toast-content" class="flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl border border-slate-700 shadow-2xl">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+            <span id="toast-message" class="text-sm font-medium">Notificação copiada!</span>
+        </div>
     </div>
 
-    <!-- MAIN CONTAINER -->
-    <div class="max-w-7xl mx-auto w-full space-y-6">
+    <!-- MAIN APP WRAPPER -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
 
-        <!-- HEADER APP BAR -->
-        <header class="glass-panel p-4 sm:p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border-b-2 border-b-emerald-500/30">
-            <div class="flex items-center space-x-3 text-center md:text-left">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-amber-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-500/20">
+        <!-- NAVBAR / TOP HEADER -->
+        <header class="glass-panel p-4 sm:p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-extrabold text-2xl shadow-lg shadow-emerald-500/20">
                     <i class="fa-solid fa-chart-pie"></i>
                 </div>
                 <div>
                     <h1 class="text-xl sm:text-2xl font-black font-heading text-white tracking-wide">
-                        Gerador de Card de Indicadores
+                        Gerador de Notificação de Metas
                     </h1>
-                    <p class="text-xs sm:text-sm text-slate-400">Edite os valores e gere imagens em PNG de alta qualidade para WhatsApp e apresentações.</p>
+                    <p class="text-xs sm:text-sm text-slate-400">
+                        Crie e exporte cartões visuais para WhatsApp, Teams e Apresentações
+                    </p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-2">
-                <button onclick="resetDefaultValues()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold border border-slate-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-left"></i> Restaurar Padrão
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                <button onclick="resetDefaultValues()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 font-semibold transition flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                    <span>Restaurar Padrões</span>
                 </button>
-                <button onclick="triggerCelebration()" class="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs sm:text-sm font-semibold border border-amber-500/40 transition flex items-center gap-2">
-                    <i class="fa-solid fa-party-horn"></i> Testar Confetes
+
+                <button onclick="triggerCelebration()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-party-horn"></i>
+                    <span>Soltar Confetes 🎉</span>
                 </button>
             </div>
         </header>
 
-        <!-- MAIN LAYOUT: FORM EDIT (LEFT) + LIVE PREVIEW CARD (RIGHT) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- GRID LAYOUT: CONTROLS + PREVIEW -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <!-- LEFT COLUMN: EDIT FORM (5 cols) -->
-            <section class="lg:col-span-5 glass-panel p-5 sm:p-6 rounded-2xl space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
-                    <h2 class="text-lg font-bold font-heading text-emerald-400 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square"></i> Formatos e Valores
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">Edição Dinâmica</span>
-                </div>
+            <!-- LEFT FORM COLUMN (5 cols) -->
+            <section class="lg:col-span-5 glass-panel p-5 sm:p-6 rounded-3xl space-y-5 flex flex-col justify-between">
+                
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h2 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-emerald-400"></i>
+                            <span>Dados da Notificação</span>
+                        </h2>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400">Edição Ao Vivo</span>
+                    </div>
 
-                <!-- General Info Inputs -->
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Título da Notificação</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-bullhorn text-xs"></i></span>
-                            <input type="text" id="input-title" value="BENEFICIÁRIOS - BATEMOS A META" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    <!-- GENERAL INPUTS -->
+                    <div class="space-y-4">
+                        <div>
+                            <label for="input-title" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                                Título da Notificação
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-bullhorn text-xs"></i></span>
+                                <input type="text" id="input-title" value="BENEFICIÁRIOS - BATEMOS A META" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="input-supervisor" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                                Nome da Supervisão
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user-tie text-xs"></i></span>
+                                <input type="text" id="input-supervisor" value="" placeholder="Ex: KELVIN, MARIA, JOÃO..." oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm uppercase focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">Caso fique em branco, será exibido como <em>"SUPERVISÃO: ---"</em>.</p>
+                        </div>
+
+                        <!-- FOOTER MESSAGE CONTROLS (CASCADING STRUCTURE) -->
+                        <div class="pt-3 border-t border-slate-800/80 space-y-3">
+                            <!-- Level 1: Checkbox -->
+                            <label class="inline-flex items-center text-xs text-slate-200 cursor-pointer font-semibold select-none">
+                                <input type="checkbox" id="check-show-footer" checked onchange="handleFooterCascade(); updatePreview();" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0 mr-2 w-4 h-4">
+                                Exibir mensagem de encerramento no rodapé
+                            </label>
+
+                            <!-- Level 2: Message Type (Cascades when Level 1 is checked) -->
+                            <div id="footer-level-2" class="pl-6 space-y-2 border-l-2 border-emerald-500/30 ml-2 transition-all duration-200">
+                                <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Tipo de Parabenização
+                                </label>
+                                <div class="flex items-center space-x-4">
+                                    <label class="inline-flex items-center text-xs text-slate-300 cursor-pointer">
+                                        <input type="radio" name="footer-type" value="default" checked onchange="handleFooterCascade(); updatePreview();" class="text-emerald-500 bg-slate-950 border-slate-700 focus:ring-0 mr-1.5">
+                                        Padrão
+                                    </label>
+                                    <label class="inline-flex items-center text-xs text-slate-300 cursor-pointer">
+                                        <input type="radio" name="footer-type" value="custom" onchange="handleFooterCascade(); updatePreview();" class="text-emerald-500 bg-slate-950 border-slate-700 focus:ring-0 mr-1.5">
+                                        Personalizada
+                                    </label>
+                                </div>
+
+                                <!-- Level 3: Custom Input Field (Cascades when "Personalizada" is selected) -->
+                                <div id="footer-level-3" class="pt-2 hidden transition-all duration-200">
+                                    <label for="input-footer-custom" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Digite a Mensagem Personalizada
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-pen-to-square text-xs"></i></span>
+                                        <input type="text" id="input-footer-custom" placeholder="Ex: Parabéns equipe pelo empenho!" value="🎉 PARABÉNS PELO EXCELENTE RESULTADO! 👏🌟" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome da Supervisão</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user-tie text-xs"></i></span>
-                            <input type="text" id="input-supervisor" value="KELVIN" oninput="updatePreview()" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm uppercase focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    <!-- METRICS FORM CONTAINER -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between pt-2 border-t border-slate-800">
+                            <span class="flex items-center space-x-2">
+                                <i class="fa-solid fa-list-check text-amber-400"></i>
+                                <span>Indicadores de Desempenho</span>
+                            </span>
+                            <span class="text-[11px] font-normal text-slate-500">7 Métricas</span>
+                        </h3>
+
+                        <div id="metrics-form-container" class="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+                            <!-- Dynamic metric row elements generated via JavaScript -->
                         </div>
-                    </div>
-                </div>
-
-                <!-- METRICS INPUT LIST -->
-                <div class="space-y-4">
-                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide flex items-center gap-2 pt-2 border-t border-slate-700/60">
-                        <i class="fa-solid fa-list-check text-amber-400"></i> Métricas do Atendimento (7)
-                    </h3>
-
-                    <div id="metrics-form-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                        <!-- Dynamic Metric Field Rows Generated via JS -->
                     </div>
                 </div>
 
                 <!-- ACTION BUTTONS -->
-                <div class="space-y-3 pt-4 border-t border-slate-700/60">
-                    <button onclick="downloadPNG()" id="btn-download" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 transition flex items-center justify-center gap-2 active:scale-95">
+                <div class="space-y-3 pt-4 border-t border-slate-800">
+                    <button onclick="downloadPNG()" id="btn-download" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition flex items-center justify-center space-x-2 active:scale-98">
                         <i class="fa-solid fa-file-image text-lg"></i>
                         <span>Exportar / Baixar Imagem (PNG)</span>
                     </button>
 
-                    <button onclick="copyWhatsAppFormat()" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+                    <button onclick="copyWhatsAppFormat()" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-copy"></i>
-                        <span>Copiar Texto Formato WhatsApp</span>
+                        <span>Copiar Texto Formatado (WhatsApp/Teams)</span>
                     </button>
                 </div>
             </section>
 
-            <!-- RIGHT COLUMN: LIVE PREVIEW & EXPORT CANVAS CARD (7 cols) -->
+            <!-- RIGHT COLUMN: LIVE CARD PREVIEW (7 cols) -->
             <section class="lg:col-span-7 space-y-4">
 
-                <!-- Control toolbar over the preview -->
+                <!-- Preview Header Bar -->
                 <div class="flex items-center justify-between px-2 text-xs text-slate-400">
-                    <span class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        <strong>Visualização de Saída (Render em Alta Resolução)</strong>
+                    <span class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <strong>Cartão de Visualização (Pronto para Exportar)</strong>
                     </span>
-                    <span>HD Export (PNG Scale x2)</span>
+                    <span>HD Export (Scale x2)</span>
                 </div>
 
-                <!-- THE CARD TO BE EXPORTED TO IMAGE (Target for html2canvas) -->
-                <div id="capture-card" class="export-card p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden space-y-6">
+                <!-- THE EXPORT CARD TARGET (Target element for html2canvas) -->
+                <div id="card-preview" class="export-card p-6 sm:p-8 rounded-3xl relative overflow-hidden space-y-6">
                     
-                    <!-- Decorative ambient lights in background -->
-                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <!-- Ambient Glow effects in background -->
+                    <div class="absolute -top-16 -right-16 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-16 -left-16 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                    <!-- HEADER BANNER INSIDE CARD -->
+                    <!-- CARD HEADER -->
                     <div class="text-center space-y-3 relative z-10">
-                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold uppercase tracking-wider">
-                            <i class="fa-solid fa-trophy text-amber-400"></i> Painel de Desempenho Operacional
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-trophy text-amber-400"></i>
+                            <span>Notificação Operacional de Sucesso</span>
                         </div>
 
-                        <h2 id="card-title" class="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white tracking-tight uppercase">
+                        <h2 id="card-title" class="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white tracking-tight uppercase leading-tight">
                             BENEFICIÁRIOS - BATEMOS A META
                         </h2>
 
                         <div class="flex justify-center">
-                            <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 via-amber-500/30 to-amber-500/20 border border-amber-500/50 px-5 py-1.5 rounded-xl text-amber-200 font-bold text-xs sm:text-sm tracking-wider uppercase">
+                            <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 via-amber-500/30 to-amber-500/20 border border-amber-500/50 px-5 py-1.5 rounded-xl text-amber-200 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-md">
                                 <i class="fa-solid fa-user-shield text-amber-400"></i>
-                                <span>SUPERVISÃO: <span id="card-supervisor" class="text-white font-extrabold">KELVIN</span></span>
+                                <span>SUPERVISÃO: <span id="card-supervisor" class="text-white font-extrabold">---</span></span>
                             </div>
                         </div>
                     </div>
@@ -222,14 +290,12 @@
                         <!-- Dynamic Metric Cards Rendered via JS -->
                     </div>
 
-                    <!-- FOOTER INSIDE CARD -->
-                    <div class="pt-2 relative z-10">
-                        <div class="bg-gradient-to-r from-emerald-950/60 via-slate-900/80 to-emerald-950/60 p-4 rounded-2xl border border-emerald-500/30 text-center flex items-center justify-center gap-3">
-                            <span class="text-2xl animate-bounce">🎉</span>
-                            <h3 class="text-base sm:text-lg font-black font-heading text-white tracking-wide uppercase">
-                                PARABÉNS A TODA A EQUIPE! 🚀
+                    <!-- CARD FOOTER BANNER -->
+                    <div id="card-footer-banner" class="pt-2 relative z-10">
+                        <div class="bg-gradient-to-r from-emerald-950/70 via-slate-900/90 to-emerald-950/70 p-4 rounded-2xl border border-emerald-500/40 text-center flex items-center justify-center space-x-3 shadow-lg">
+                            <h3 id="card-footer-text" class="text-base sm:text-lg font-black font-heading text-white tracking-wide uppercase break-words">
+                                🎉 PARABÉNS A TODA A EQUIPE! 🚀🏆
                             </h3>
-                            <span class="text-2xl animate-bounce">🏆</span>
                         </div>
                     </div>
 
@@ -239,61 +305,127 @@
 
         </div>
 
-        <!-- FOOTER APP CREDITS -->
-        <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
-            Painel Gerador de Indicadores Operacionais • Compatível com GitHub Pages & Exportação PNG
+        <!-- APP FOOTER -->
+        <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800/80">
+            Painel Gerador de Indicadores de Atendimento • Totalmente editável e compatível com GitHub Pages
         </footer>
 
     </div>
 
-    <!-- SCRIPT LOGIC -->
+    <!-- MAIN JAVASCRIPT APP LOGIC -->
     <script>
-        // Initial Default Metrics Data
+        // Default Dataset based on user query
         const defaultMetrics = [
-            { id: 1, name: 'Aderência', meta: '90', atual: '89.64', unit: '%', icon: 'fa-calendar-check', lowerIsBetter: false },
-            { id: 2, name: 'NS - Nível de Serviço', meta: '90', atual: '94.91', unit: '%', icon: 'fa-headset', lowerIsBetter: false },
-            { id: 3, name: 'Qualidade Soft', meta: '90.00', atual: '92.08', unit: '%', icon: 'fa-award', lowerIsBetter: false },
-            { id: 4, name: 'Qualidade AQM', meta: '95.00', atual: '83.71', unit: '', icon: 'fa-clipboard-check', lowerIsBetter: false },
-            { id: 5, name: 'TMA', meta: '350', atual: '418', unit: 's', icon: 'fa-stopwatch', lowerIsBetter: true },
-            { id: 6, name: 'Satisfação', meta: '9.00', atual: '9.38', unit: '', icon: 'fa-face-smile-beam', lowerIsBetter: false },
-            { id: 7, name: 'NPS', meta: '60', atual: '65', unit: '', icon: 'fa-chart-line', lowerIsBetter: false }
+            { id: 1, name: 'Aderência', meta: '90%', atual: '89,64%', icon: 'fa-calendar-check', lowerIsBetter: false },
+            { id: 2, name: 'NS - Nível de Serviço', meta: '90%', atual: '94,91%', icon: 'fa-headset', lowerIsBetter: false },
+            { id: 3, name: 'QUALIDADE SOFT', meta: '90,00', atual: '92,08', icon: 'fa-award', lowerIsBetter: false },
+            { id: 4, name: 'QUALIDADE AQM', meta: '95,00', atual: '83,71', icon: 'fa-clipboard-check', lowerIsBetter: false },
+            { id: 5, name: 'TMA', meta: '350', atual: '418', icon: 'fa-stopwatch', isRangeMetric: true, tolerancePct: 10 },
+            { id: 6, name: 'SATISFAÇÃO', meta: '9,00', atual: '9,38', icon: 'fa-face-smile-beam', lowerIsBetter: false },
+            { id: 7, name: 'NPS', meta: '60', atual: '65', icon: 'fa-chart-line', lowerIsBetter: false }
         ];
 
-        let metricsState = JSON.parse(JSON.stringify(defaultMetrics));
+        let metricsState = [];
 
-        // Initialize App on DOM Load
-        window.addEventListener('DOMContentLoaded', () => {
+        // Safe Initialization on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            metricsState = JSON.parse(JSON.stringify(defaultMetrics));
             renderFormFields();
+            handleFooterCascade();
             updatePreview();
-            setTimeout(triggerCelebration, 600);
+            
+            // Trigger welcome celebration if confetti library exists
+            setTimeout(() => {
+                triggerCelebration();
+            }, 500);
         });
 
-        // Render input fields on the left column form
+        // Cascading footer logic handler (Level 1 -> Level 2 -> Level 3)
+        function handleFooterCascade() {
+            const showFooter = document.getElementById('check-show-footer')?.checked ?? true;
+            const level2 = document.getElementById('footer-level-2');
+            const level3 = document.getElementById('footer-level-3');
+            const footerType = document.querySelector('input[name="footer-type"]:checked')?.value || 'default';
+
+            if (level2) {
+                if (showFooter) {
+                    level2.classList.remove('hidden');
+                } else {
+                    level2.classList.add('hidden');
+                }
+            }
+
+            if (level3) {
+                if (showFooter && footerType === 'custom') {
+                    level3.classList.remove('hidden');
+                } else {
+                    level3.classList.add('hidden');
+                }
+            }
+        }
+
+        // Helper to evaluate active footer message text dynamically
+        function getActiveFooterText() {
+            const showFooter = document.getElementById('check-show-footer')?.checked ?? true;
+            if (!showFooter) return null;
+
+            const footerType = document.querySelector('input[name="footer-type"]:checked')?.value || 'default';
+            if (footerType === 'default') {
+                return "🎉 PARABÉNS A TODA A EQUIPE! 🚀🏆";
+            } else {
+                const customText = document.getElementById('input-footer-custom')?.value.trim();
+                return customText !== "" ? customText : "🎉 PARABÉNS A TODA A EQUIPE! 🚀🏆";
+            }
+        }
+
+        // Render inputs in left side panel
         function renderFormFields() {
             const container = document.getElementById('metrics-form-container');
+            if (!container) return;
+
             container.innerHTML = '';
 
             metricsState.forEach((m, index) => {
                 const itemEl = document.createElement('div');
-                itemEl.className = 'bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2';
-                itemEl.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid ${m.icon} text-emerald-400"></i> ${m.name}
-                        </span>
-                        <label class="inline-flex items-center text-[11px] text-slate-400 cursor-pointer">
-                            <input type="checkbox" ${m.lowerIsBetter ? 'checked' : ''} onchange="updateMetricRule(${index}, this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 mr-1.5">
+                itemEl.className = 'bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-2';
+                
+                let ruleControlHtml = '';
+                if (m.isRangeMetric) {
+                    ruleControlHtml = `
+                        <div class="flex items-center space-x-1">
+                            <span class="text-[10px] text-slate-400 font-semibold mr-1">Margem:</span>
+                            <select onchange="updateMetricTolerance(${index}, this.value)" class="bg-slate-950 border border-slate-700 text-amber-400 text-[11px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-amber-500">
+                                <option value="10" ${m.tolerancePct === 10 ? 'selected' : ''}>±10% (Padrão)</option>
+                                <option value="15" ${m.tolerancePct === 15 ? 'selected' : ''}>±15%</option>
+                                <option value="20" ${m.tolerancePct === 20 ? 'selected' : ''}>±20%</option>
+                            </select>
+                        </div>
+                    `;
+                } else {
+                    ruleControlHtml = `
+                        <label class="inline-flex items-center text-[11px] text-slate-400 cursor-pointer hover:text-slate-200">
+                            <input type="checkbox" ${m.lowerIsBetter ? 'checked' : ''} onchange="updateMetricRule(${index}, this.checked)" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0 mr-1.5">
                             Menor é melhor
                         </label>
+                    `;
+                }
+
+                itemEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-200 flex items-center space-x-2">
+                            <i class="fa-solid ${m.icon} text-emerald-400"></i>
+                            <span>${m.name}</span>
+                        </span>
+                        ${ruleControlHtml}
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] text-slate-400 uppercase">Meta (${m.unit || 'Valor'})</label>
+                            <label class="block text-[10px] text-slate-400 uppercase font-semibold">Meta ${m.isRangeMetric ? '(segundos)' : ''}</label>
                             <input type="text" value="${m.meta}" oninput="updateMetricValue(${index}, 'meta', this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="block text-[10px] text-slate-400 uppercase">Atual</label>
+                            <label class="block text-[10px] text-slate-400 uppercase font-semibold">Atual ${m.isRangeMetric ? '(segundos)' : ''}</label>
                             <input type="text" value="${m.atual}" oninput="updateMetricValue(${index}, 'atual', this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
@@ -302,94 +434,158 @@
             });
         }
 
-        // Update single metric value in state
-        function updateMetricValue(index, field, val) {
-            metricsState[index][field] = val;
-            updatePreview();
+        // Update state logic
+        function updateMetricValue(index, field, value) {
+            if (metricsState[index]) {
+                metricsState[index][field] = value;
+                updatePreview();
+            }
         }
 
-        // Update rule (lower is better, e.g. TMA)
         function updateMetricRule(index, checked) {
-            metricsState[index].lowerIsBetter = checked;
-            updatePreview();
+            if (metricsState[index]) {
+                metricsState[index].lowerIsBetter = checked;
+                updatePreview();
+            }
         }
 
-        // Reset to default values
+        function updateMetricTolerance(index, tolValue) {
+            if (metricsState[index]) {
+                metricsState[index].tolerancePct = parseInt(tolValue, 10) || 10;
+                updatePreview();
+            }
+        }
+
         function resetDefaultValues() {
             document.getElementById('input-title').value = "BENEFICIÁRIOS - BATEMOS A META";
-            document.getElementById('input-supervisor').value = "KELVIN";
+            document.getElementById('input-supervisor').value = "";
+            
+            const checkFooter = document.getElementById('check-show-footer');
+            if (checkFooter) checkFooter.checked = true;
+
+            const radioDefault = document.querySelector('input[name="footer-type"][value="default"]');
+            if (radioDefault) radioDefault.checked = true;
+
+            const customInput = document.getElementById('input-footer-custom');
+            if (customInput) customInput.value = "🎉 PARABÉNS PELO EXCELENTE RESULTADO! 👏🌟";
+
+            handleFooterCascade();
             metricsState = JSON.parse(JSON.stringify(defaultMetrics));
             renderFormFields();
             updatePreview();
-            showToast("Valores padronizados restaurados!", "fa-rotate-left");
+            showToast("Valores redefinidos para os padrões!", "fa-rotate-left");
         }
 
-        // Main preview recalculation & DOM update
+        // Helper function to clean numbers for logic comparison
+        function parseNumeric(valStr) {
+            if (typeof valStr !== 'string') return 0;
+            const clean = valStr.replace('%', '').replace(',', '.').trim();
+            const parsed = parseFloat(clean);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        // Main preview update function
         function updatePreview() {
-            // Header values
-            const titleVal = document.getElementById('input-title').value || "BENEFICIÁRIOS - BATEMOS A META";
-            const supervisorVal = document.getElementById('input-supervisor').value || "SUPERVISOR";
+            const titleInput = document.getElementById('input-title').value.trim();
+            const supervisorInput = document.getElementById('input-supervisor').value.trim();
 
-            document.getElementById('card-title').textContent = titleVal;
-            document.getElementById('card-supervisor').textContent = supervisorVal.toUpperCase();
+            const titleVal = titleInput !== "" ? titleInput : "BENEFICIÁRIOS - BATEMOS A META";
+            const supervisorVal = supervisorInput !== "" ? supervisorInput : "---";
 
-            // Render Metrics Grid
+            const cardTitle = document.getElementById('card-title');
+            const cardSupervisor = document.getElementById('card-supervisor');
+
+            if (cardTitle) cardTitle.textContent = titleVal;
+            if (cardSupervisor) cardSupervisor.textContent = supervisorVal.toUpperCase();
+
+            // Footer Banner Toggle & Update (Cascading evaluation)
+            const activeFooterText = getActiveFooterText();
+            const cardFooterBanner = document.getElementById('card-footer-banner');
+            const cardFooterText = document.getElementById('card-footer-text');
+
+            if (cardFooterBanner) {
+                if (activeFooterText !== null && activeFooterText !== '') {
+                    cardFooterBanner.classList.remove('hidden');
+                    if (cardFooterText) cardFooterText.textContent = activeFooterText;
+                } else {
+                    cardFooterBanner.classList.add('hidden');
+                }
+            }
+
             const grid = document.getElementById('card-metrics-grid');
+            if (!grid) return;
+
             grid.innerHTML = '';
 
             metricsState.forEach((m, idx) => {
-                const metaNum = parseFloat(m.meta.replace(',', '.')) || 0;
-                const atualNum = parseFloat(m.atual.replace(',', '.')) || 0;
-                const isNPS = m.name.toUpperCase().includes('NPS');
+                const metaNum = parseNumeric(m.meta);
+                const atualNum = parseNumeric(m.atual);
 
                 let isSuccess = false;
                 let isWarning = false;
-                let diffText = '';
-                let progressPercent = 0;
+                let progressPercent = 50;
+                let rangeSubtitle = '';
 
-                if (m.lowerIsBetter) {
-                    // Lower is better (e.g., TMA)
+                if (m.isRangeMetric) {
+                    // Range Logic for TMA
+                    const tol = m.tolerancePct || 10;
+                    const minIdeal = Math.round(metaNum * (1 - tol / 100));
+                    const maxIdeal = Math.round(metaNum * (1 + tol / 100));
+
+                    // Outer warning band (up to 20%)
+                    const minWarn = Math.round(metaNum * (1 - 0.20));
+                    const maxWarn = Math.round(metaNum * (1 + 0.20));
+
+                    rangeSubtitle = `Faixa Ideal (±${tol}%): ${minIdeal}s - ${maxIdeal}s`;
+
+                    if (atualNum >= minIdeal && atualNum <= maxIdeal) {
+                        isSuccess = true;
+                        progressPercent = 100;
+                    } else if (atualNum >= minWarn && atualNum <= maxWarn) {
+                        isWarning = true;
+                        progressPercent = 70;
+                    } else {
+                        isSuccess = false;
+                        isWarning = false;
+                        progressPercent = 35;
+                    }
+                } else if (m.lowerIsBetter) {
                     isSuccess = atualNum <= metaNum;
-                    isWarning = atualNum > metaNum && atualNum <= metaNum * 1.15;
-                    const diff = (atualNum - metaNum).toFixed(2).replace('.', ',');
-                    diffText = atualNum > metaNum ? `Excesso: +${diff}${m.unit}` : `Economia: ${diff}${m.unit}`;
-                    progressPercent = Math.min(100, Math.max(10, (metaNum / (atualNum || 1)) * 100));
+                    isWarning = !isSuccess && atualNum <= metaNum * 1.15;
+                    progressPercent = Math.min(100, Math.max(15, (metaNum / (atualNum || 1)) * 100));
                 } else {
-                    // Higher is better
                     isSuccess = atualNum >= metaNum;
                     isWarning = !isSuccess && atualNum >= metaNum * 0.95;
-                    const diff = (atualNum - metaNum).toFixed(2).replace('.', ',');
-                    diffText = atualNum >= metaNum ? `Diferença: +${diff}${m.unit}` : `Diferença: ${diff}${m.unit}`;
-                    progressPercent = Math.min(100, Math.max(10, (atualNum / (metaNum || 1)) * 100));
+                    progressPercent = Math.min(100, Math.max(15, (atualNum / (metaNum || 1)) * 100));
                 }
 
-                let cardStatusClass = 'metric-card-danger';
-                let statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">Abaixo</span>';
-                let valueColorClass = 'text-red-400';
-                let barColorClass = 'from-red-600 to-red-400';
+                let cardStyle = 'metric-card-danger';
+                let statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">Precisa melhorar</span>';
+                let valueColor = 'text-red-400';
+                let barColor = 'from-red-600 to-red-400';
 
                 if (isSuccess) {
-                    cardStatusClass = 'metric-card-success';
-                    statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Superada</span>';
-                    valueColorClass = 'text-emerald-400';
-                    barColorClass = 'from-emerald-600 to-emerald-400';
+                    cardStyle = 'metric-card-success';
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><i class="fa-solid fa-check"></i> Meta Atingida</span>`;
+                    valueColor = 'text-emerald-400';
+                    barColor = 'from-emerald-600 to-emerald-400';
                 } else if (isWarning) {
-                    cardStatusClass = 'metric-card-warning';
-                    statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">Quase lá</span>';
-                    valueColorClass = 'text-amber-400';
-                    barColorClass = 'from-amber-600 to-amber-400';
+                    cardStyle = 'metric-card-warning';
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">Quase lá</span>`;
+                    valueColor = 'text-amber-400';
+                    barColor = 'from-amber-600 to-amber-400';
                 }
 
-                // Wide layout for NPS or 7th element if odd
-                const isWide = isNPS || (idx === metricsState.length - 1 && metricsState.length % 2 !== 0);
+                // Grid layout tweak: full width for last odd item if total is odd
+                const isWide = (idx === metricsState.length - 1 && metricsState.length % 2 !== 0);
                 const colSpanClass = isWide ? 'sm:col-span-2' : '';
 
-                const cardEl = document.createElement('div');
-                cardEl.className = `${cardStatusClass} ${colSpanClass} p-4 rounded-2xl relative overflow-hidden transition-all`;
-                cardEl.innerHTML = `
+                const card = document.createElement('div');
+                card.className = `${cardStyle} ${colSpanClass} p-4 rounded-2xl relative overflow-hidden transition-all`;
+                card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center text-slate-200 text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900/80 flex items-center justify-center text-slate-200 text-sm">
                                 <i class="fa-solid ${m.icon}"></i>
                             </div>
                             <h4 class="font-bold text-slate-100 text-sm sm:text-base">${m.name}</h4>
@@ -399,94 +595,107 @@
 
                     <div class="grid grid-cols-2 gap-2 items-baseline mt-3">
                         <div>
-                            <span class="text-[11px] uppercase font-semibold text-slate-400 block">Meta</span>
-                            <span class="text-sm font-semibold text-slate-300">${m.meta}${m.unit}</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Meta</span>
+                            <span class="text-sm font-semibold text-slate-300">${m.meta}</span>
+                            ${rangeSubtitle ? `<span class="block text-[10px] text-slate-400 font-medium mt-0.5">${rangeSubtitle}</span>` : ''}
                         </div>
                         <div class="text-right">
-                            <span class="text-[11px] uppercase font-semibold text-slate-400 block">Atual</span>
-                            <span class="text-2xl sm:text-3xl font-black ${valueColorClass} font-heading">${m.atual}${m.unit}</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Atual</span>
+                            <span class="text-2xl sm:text-3xl font-black ${valueColor} font-heading">${m.atual}</span>
                         </div>
                     </div>
 
-                    <div class="mt-2.5 space-y-1">
-                        <div class="w-full bg-slate-900/90 h-2 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
-                            <div class="bg-gradient-to-r ${barColorClass} h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                    <div class="mt-2.5">
+                        <div class="w-full bg-slate-950/80 h-2 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                            <div class="bg-gradient-to-r ${barColor} h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
                         </div>
-                        <p class="text-[10px] text-slate-400 text-right font-medium">${diffText}</p>
                     </div>
                 `;
-                grid.appendChild(cardEl);
+                grid.appendChild(card);
             });
         }
 
-        // Export capture-card to PNG using html2canvas
+        // Export PNG handling
         function downloadPNG() {
             const btn = document.getElementById('btn-download');
-            const originalBtnText = btn.innerHTML;
-            
+            const cardEl = document.getElementById('card-preview');
+
+            if (typeof html2canvas === 'undefined') {
+                showToast("Erro: Biblioteca de captura não carregou. Verifique sua conexão.", "fa-triangle-exclamation");
+                return;
+            }
+
+            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Gerando Imagem PNG...</span>`;
-            showToast("Renderizando imagem em alta resolução...", "fa-gear animate-spin");
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Gerando Imagem HD...</span>`;
 
-            const captureElement = document.getElementById('capture-card');
-
-            // Trigger celebration on download
+            // Trigger festive sound and particles
             triggerCelebration();
 
-            html2canvas(captureElement, {
-                scale: 2, // High resolution crispness
+            html2canvas(cardEl, {
+                scale: 2,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#060A12',
-                logging: false,
-                onclone: (clonedDoc) => {
-                    // Ensures styles are locked in clone
-                    const clonedCard = clonedDoc.getElementById('capture-card');
-                    if (clonedCard) {
-                        clonedCard.style.transform = 'none';
-                    }
-                }
+                backgroundColor: '#060913',
+                logging: false
             }).then(canvas => {
-                const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
+                const supervisorInput = document.getElementById('input-supervisor').value.trim();
+                const supervisor = supervisorInput !== "" ? supervisorInput.toLowerCase().replace(/\s+/g, '-') : 'supervisao';
                 
-                const supervisor = document.getElementById('input-supervisor').value || 'kelvin';
-                const fileName = `metas-${supervisor.toLowerCase().trim().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.png`;
-
-                link.download = fileName;
-                link.href = image;
+                link.download = `notificacao-metas-${supervisor}-${new Date().toISOString().slice(0, 10)}.png`;
+                link.href = canvas.toDataURL('image/png');
                 link.click();
 
                 btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-                showToast("Imagem baixada com sucesso!", "fa-circle-check");
+                btn.innerHTML = originalText;
+                showToast("Imagem gerada e baixada com sucesso!", "fa-circle-check");
             }).catch(err => {
-                console.error("Erro ao gerar imagem:", err);
+                console.error("Erro no html2canvas:", err);
                 btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-                showToast("Erro ao gerar imagem. Tente novamente.", "fa-triangle-exclamation");
+                btn.innerHTML = originalText;
+                showToast("Ocorreu um erro ao gerar a imagem.", "fa-triangle-exclamation");
             });
         }
 
-        // Copy plain text notification to clipboard for WhatsApp/Teams
+        // WhatsApp / Teams Copy Text Format
         function copyWhatsAppFormat() {
-            const title = document.getElementById('input-title').value || "BENEFICIÁRIOS - BATEMOS A META";
-            const supervisor = document.getElementById('input-supervisor').value || "KELVIN";
+            const title = document.getElementById('input-title').value.trim() || "BENEFICIÁRIOS - BATEMOS A META";
+            const supervisorInput = document.getElementById('input-supervisor').value.trim();
+            const supervisor = supervisorInput !== "" ? supervisorInput.toUpperCase() : "---";
 
-            let formattedText = `${title.toUpperCase()} - ${supervisor.toUpperCase()}\n\n`;
+            let output = `${title.toUpperCase()} - ${supervisor}\n\n`;
 
             metricsState.forEach(m => {
-                formattedText += `${m.name.toUpperCase()} meta ${m.meta}${m.unit}\n`;
-                formattedText += `- Atualmente ${m.atual}${m.unit}\n\n`;
+                output += `${m.name} meta ${m.meta}\n`;
+                output += `- Atualmente ${m.atual}\n\n`;
             });
 
-            formattedText += `🎉 PARABÉNS A TODA A EQUIPE! 🚀`;
+            const activeFooterText = getActiveFooterText();
 
-            // Clipboard fallback for iframe context
+            if (activeFooterText !== null && activeFooterText !== '') {
+                output += `${activeFooterText}`;
+            } else {
+                output = output.trimEnd();
+            }
+
+            // Robust fallback for clipboard in web view/iframes
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(output).then(() => {
+                    showToast("Texto formatado copiado para a área de transferência!", "fa-clipboard-check");
+                }).catch(() => {
+                    fallbackCopyText(output);
+                });
+            } else {
+                fallbackCopyText(output);
+            }
+        }
+
+        function fallbackCopyText(text) {
             const textarea = document.createElement('textarea');
-            textarea.value = formattedText;
+            textarea.value = text;
             textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
+            textarea.style.left = '-9999px';
             document.body.appendChild(textarea);
             textarea.select();
 
@@ -494,76 +703,73 @@
                 document.execCommand('copy');
                 showToast("Texto formatado copiado!", "fa-clipboard-check");
             } catch (err) {
-                showToast("Erro ao copiar texto.", "fa-triangle-exclamation");
+                showToast("Não foi possível copiar o texto automaticamente.", "fa-triangle-exclamation");
             } finally {
                 document.body.removeChild(textarea);
             }
         }
 
-        // Confetti celebration sound & particles
+        // Confetti effect helper
         function triggerCelebration() {
-            playAudioChime();
-
-            const count = 180;
-            const defaults = { origin: { y: 0.7 } };
-
-            function fire(particleRatio, opts) {
-                confetti(Object.assign({}, defaults, opts, {
-                    particleCount: Math.floor(count * particleRatio)
-                }));
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10B981', '#F59E0B', '#6366F1', '#FFFFFF']
+                });
             }
 
-            fire(0.25, { spread: 26, startVelocity: 55, colors: ['#10B981', '#F59E0B', '#FFFFFF'] });
-            fire(0.2, { spread: 60, colors: ['#34D399', '#FBBF24'] });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92 });
+            playChimeSound();
         }
 
-        // Web Audio Synthesizer for Chime Sound (No external MP3 required)
-        function playAudioChime() {
+        // Web Audio synth chime
+        function playChimeSound() {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const ctx = new AudioContext();
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
 
-                const freqs = [523.25, 659.25, 783.99, 1046.50];
-                freqs.forEach((f, i) => {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.08);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
 
-                    gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.4);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.35);
 
                     osc.connect(gain);
                     gain.connect(ctx.destination);
 
-                    osc.start(ctx.currentTime + i * 0.08);
-                    osc.stop(ctx.currentTime + i * 0.08 + 0.4);
+                    osc.start(ctx.currentTime + idx * 0.07);
+                    osc.stop(ctx.currentTime + idx * 0.07 + 0.35);
                 });
             } catch (e) {
-                // Audio context suppressed by browser policy if un-interacted
+                // Audio context block by browser security policy
             }
         }
 
-        // Toast feedback handler
-        function showToast(msg, iconClass = "fa-circle-check") {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
+        // Custom Toast UI
+        function showToast(message, iconClass = "fa-circle-check") {
+            const container = document.getElementById('toast-container');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
 
-            toastMessage.textContent = msg;
-            toastIcon.className = `fa-solid ${iconClass} text-emerald-400 text-xl`;
+            if (!container || !msgEl || !iconEl) return;
 
-            toast.classList.remove('translate-y-[-120%]', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
+            msgEl.textContent = message;
+            iconEl.className = `fa-solid ${iconClass} text-emerald-400 text-xl`;
+
+            container.classList.remove('-translate-y-12', 'opacity-0', 'pointer-events-none');
+            container.classList.add('translate-y-0', 'opacity-100');
 
             setTimeout(() => {
-                toast.classList.add('translate-y-[-120%]', 'opacity-0');
-                toast.classList.remove('translate-y-0', 'opacity-100');
-            }, 3200);
+                container.classList.add('-translate-y-12', 'opacity-0', 'pointer-events-none');
+                container.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
         }
     </script>
 </body>
