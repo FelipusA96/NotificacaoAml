@@ -568,18 +568,18 @@
                 }
 
                 let cardStyle = 'metric-card-danger';
-                let statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">Precisa melhorar</span>';
+                let statusBadge = `<span class="inline-flex items-center justify-center shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-semibold rounded-full leading-none bg-red-500/20 text-red-300 border border-red-500/40">Precisa melhorar</span>`;
                 let valueColor = 'text-red-400';
                 let barColor = 'from-red-600 to-red-400';
 
                 if (isSuccess) {
                     cardStyle = 'metric-card-success';
-                    statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><i class="fa-solid fa-check"></i> Meta Atingida</span>`;
+                    statusBadge = `<span class="inline-flex items-center justify-center shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-semibold rounded-full leading-none bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 gap-1.5"><i class="fa-solid fa-check text-xs"></i> Meta Atingida</span>`;
                     valueColor = 'text-emerald-400';
                     barColor = 'from-emerald-600 to-emerald-400';
                 } else if (isWarning) {
                     cardStyle = 'metric-card-warning';
-                    statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">Quase lá</span>`;
+                    statusBadge = `<span class="inline-flex items-center justify-center shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-semibold rounded-full leading-none bg-amber-500/20 text-amber-300 border border-amber-500/40">Quase lá</span>`;
                     valueColor = 'text-amber-400';
                     barColor = 'from-amber-600 to-amber-400';
                 }
@@ -591,12 +591,12 @@
                 const card = document.createElement('div');
                 card.className = `${cardStyle} ${colSpanClass} p-4 rounded-2xl relative overflow-hidden transition-all`;
                 card.innerHTML = `
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-slate-900/80 flex items-center justify-center text-slate-200 text-sm">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center space-x-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900/80 flex items-center justify-center text-slate-200 text-sm shrink-0">
                                 <i class="fa-solid ${m.icon}"></i>
                             </div>
-                            <h4 class="font-bold text-slate-100 text-sm sm:text-base">${m.name}</h4>
+                            <h4 class="font-bold text-slate-100 text-sm sm:text-base leading-tight">${m.name}</h4>
                         </div>
                         ${statusBadge}
                     </div>
